@@ -1,8 +1,19 @@
 {
-  "name": "colorpicker",
-  "private": true,
+  "name": "colorpicker-vue3",
   "version": "0.0.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/colorpicker-vue3.umd.cjs",
+  "module": "./dist/colorpicker-vue3.js",
+  "exports": {
+    ".": {
+      "import": "./dist/colorpicker-vue3.js",
+      "require": "./dist/colorpicker-vue3.umd.cjs"
+    },
+    "./dist/": "./dist/"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
@@ -27,5 +38,32 @@
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vue-tsc": "^2.0.6"
-  }
+  },
+  "keywords": [
+    "colorpicker",
+    "vue3",
+    "color",
+    "picker",
+    "colorpicker-vue3",
+    "component",
+    "components",
+    "design",
+    "framework",
+    "frontend",
+    "vue",
+    "vue-component",
+    "ui"
+  ],
+  "sideEffects": [
+    "dist/*"
+  ],
+  "author": "vuluu2k <vuluu040320@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vuluu2k/colorpicker-vue3/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "homepage": "https://github.com/vuluu2k/colorpicker-vue3#readme"
 }
