@@ -3,10 +3,18 @@
   "version": "1.0.0",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
-  "main": "./dist/colorpicker-vue3.umd.cjs",
-  "module": "./dist/colorpicker-vue3.js",
+  "description": "Project is a component for color picker with vue3",
+  "main": "./dist/vue3-color-picker-vn.min.js",
+  "web": "./dist/vue3-color-picker-vn.js",
+  "module": "./dist/esm/index.mjs",
+  "jsnext:main": "./dist/esm/index.mjs",
+  "source": "./src/index.ts",
+  "types": "./src/shim-vue.d.ts",
+  "sass": "./src/styles/index.scss",
+  "style": "./dist/vu3-color-picker-vn.css",
   "exports": {
     ".": {
       "import": "./dist/colorpicker-vue3.js",
