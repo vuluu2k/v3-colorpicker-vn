@@ -15,13 +15,6 @@
   "types": "./src/shim-vue.d.ts",
   "sass": "./src/styles/index.scss",
   "style": "./dist/vu3-color-picker-vn.css",
-  "exports": {
-    ".": {
-      "import": "./dist/colorpicker-vue3.js",
-      "require": "./dist/colorpicker-vue3.umd.cjs"
-    },
-    "./dist/": "./dist/"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
