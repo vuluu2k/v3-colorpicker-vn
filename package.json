@@ -1,6 +1,6 @@
 {
   "name": "v3-colorpicker-vn",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "files": [
     "dist",
@@ -17,6 +17,13 @@
   "types": "./src/shim-vue.d.ts",
   "sass": "./src/styles/index.scss",
   "style": "./dist/vu3-color-picker-vn.css",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/v3-colorpicker-vn.mjs"
+    },
+    "./dist/": "./dist/"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
