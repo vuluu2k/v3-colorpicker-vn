@@ -72,7 +72,7 @@ export default () => {
       external: ["vue"],
       output: {
         format: "esm",
-        file: "dist/vue3-color-picker-vn.mjs",
+        file: "dist/v3-colorpicker-vn.mjs",
         banner: banner,
       },
       plugins: [
@@ -112,8 +112,8 @@ export default () => {
       external: ["vue"],
       output: {
         format: "umd",
-        name: capitalize("vue3-color-picker-vn"),
-        file: "dist/vue3-color-picker-vn.js",
+        name: capitalize("v3-colorpicker-vn"),
+        file: "dist/v3-colorpicker-vn.js",
         exports: "named",
         banner: banner,
         globals: {
