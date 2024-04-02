@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import path, { resolve } from "path";
-
-const isExternal = (id: string) => !id.startsWith(".") && !path.isAbsolute(id);
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [vue()],
@@ -13,12 +11,16 @@ export default defineConfig({
       fileName: "colorpicker-vue3",
     },
     rollupOptions: {
-      external: isExternal,
+      external: ["vue"],
       output: {
-        sourcemapExcludeSources: true,
+        // Provide global variables to use in the UMD build
+        // for externalized deps
+        globals: {
+          vue: "Vue",
+        },
       },
     },
     sourcemap: true,
-    minify: true
+    minify: true,
   },
 });
