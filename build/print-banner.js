@@ -1,5 +1,7 @@
-// import packageInfo from "../package.json";
-// import { text } from "./banner.json";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const packageInfo = require("../package.json");
+const { text } = require("./banner.json");
 
-process.stdout.write("/*! Vu Library v${version} */\n".replace("${version}", "1.0.0"));
+process.stdout.write(text.replace("${version}", packageInfo.version));
 process.stdin.pipe(process.stdout);
