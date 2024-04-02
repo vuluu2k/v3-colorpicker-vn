@@ -4,8 +4,8 @@ import ColorPicker from "./ColorPicker.vue";
 
 export default {
   install(Vue: App) {
-    Vue.component("VuColorPicker", ColorPicker);
+    Vue.component("ColorPicker", ColorPicker);
   },
 } as Plugin;
 
-export { ColorPicker as VuColorPicker };
+export { ColorPicker };
