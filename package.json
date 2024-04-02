@@ -1,6 +1,6 @@
 {
   "name": "v3-colorpicker-vn",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "files": [
     "dist",
@@ -9,17 +9,17 @@
     "src/shim-vue.d.ts"
   ],
   "description": "Project is a component for color picker with vue3",
-  "main": "./dist/v3-colorpicker-vn.min.js",
-  "web": "./dist/v3-colorpicker-vn.js",
-  "module": "./dist/cjs/index.js",
-  "jsnext:main": "./dist/cjs/index.js",
+  "main": "./dist/v3-colorpicker-vn.min.mjs",
+  "web": "./dist/v3-colorpicker-vn.mjs",
+  "module": "./dist/esm/index.mjs",
+  "jsnext:main": "./dist/esm/index.mjs",
   "source": "./src/index.ts",
   "types": "./src/shim-vue.d.ts",
   "sass": "./src/styles/index.scss",
   "style": "./dist/vu3-color-picker-vn.css",
   "exports": {
     ".": {
-      "import": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.js"
     },
     "./dist/": "./dist/"
@@ -37,7 +37,7 @@
     "publish:lib": "npm run build:lib && npm publish"
   },
   "dependencies": {
-    "v3-colorpicker-vn": "^1.0.2",
+    "v3-colorpicker-vn": "^1.0.3",
     "vue": "^3.4.21"
   },
   "devDependencies": {
