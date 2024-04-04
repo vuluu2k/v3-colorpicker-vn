@@ -1,9 +1,34 @@
-# Vue 3 + TypeScript + Vite
+# Vue 3 ColorPicker Vietnamese
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## Demo project
 
-## Recommended Setup
+You are visiting [Color Picker](https://vuluu2k.github.io/color-picker-vue3/) now!
 
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (previously Volar) and disable Vetur
+## Some images in project
 
-- Use [vue-tsc](https://github.com/vuejs/language-tools/tree/master/packages/tsc) for performing the same type checking from the command line, or for generating d.ts files for SFCs.
+![image](https://github.com/vuluu2k/color-picker-vue3/assets/73820126/5854465a-aa4f-4a21-815a-ccaf9b2f1f6b)
+
+![image](https://github.com/vuluu2k/color-picker-vue3/assets/73820126/619e72a7-f62b-47b2-a0d1-d7f1fb7823ae)
+
+## Run Project
+
+1. install despencies
+
+```cmd
+yarn
+```
+
+2. run project
+
+```cmd
+yarn dev
+```
+
+## Contact
+
+Vũ Lưu
+
+- Email: vuluu040320@gmail.com
+- Number Phone: +84898709170
+- LinkTree: [vuluu2k](https://linktr.ee/vuluu2k)
+- LinkedIn: [vuluu2k](https://linkedin.com/in/vuluu2k)
