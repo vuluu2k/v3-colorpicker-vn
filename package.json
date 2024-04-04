@@ -6,7 +6,8 @@
     "dist",
     "src/components",
     "src/styles",
-    "src/shim-vue.d.ts"
+    "src/shim-vue.d.ts",
+    "src/utils"
   ],
   "description": "Project is a component for color picker with vue3",
   "main": "./dist/v3-colorpicker-vn.min.mjs",

@@ -1,19 +1,5 @@
-import ColorPicker, { VuColorPicker } from "./colorpicker";
-import ColorPickerPick, { VuColorPickerPick } from "./colorpickerpick";
-import ColorPickerBackground, {
-  VuColorPickerBackground,
-} from "./colorpickerbg";
+import ColorPicker from "./colorpicker";
+import ColorPickerPick from "./colorpickerpick";
+import ColorPickerBackground from "./colorpickerbg";
 
-const componentsPlugin = {
-  ColorPicker,
-  ColorPickerPick,
-  ColorPickerBackground,
-};
-
-const components = {
-  VuColorPicker,
-  VuColorPickerPick,
-  VuColorPickerBackground,
-};
-
-export { componentsPlugin, components }
+export { ColorPicker, ColorPickerPick, ColorPickerBackground };

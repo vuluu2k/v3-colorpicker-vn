@@ -1,13 +1,13 @@
 import { App } from "vue";
-import { componentsPlugin } from "./components";
+import * as components from "./components";
 
 const ColorPickerLibrary = {
   install(app: App) {
-    for (const componentKey in componentsPlugin) {
-      app.use((componentsPlugin as any)[componentKey]);
+    for (const componentKey in components) {
+      app.use((components as any)[componentKey]);
     }
   },
 };
 
-export * from "./components";
+export * from "./components/export";
 export default ColorPickerLibrary;
