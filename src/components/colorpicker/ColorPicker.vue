@@ -1,5 +1,5 @@
 <script>
-import { hexToRgb, rgbToHex, hsbToRgb, rgbToHsb, rgbaRegex, removeAccents } from "../../utils";
+import { hexToRgb, rgbToHex, hsbToRgb, rgbToHsb, removeAccents, rgbaToArray } from "../../utils";
 export default {
   emits: ["change", "blur", "update:value"],
   props: {
@@ -48,21 +48,7 @@ export default {
     };
   },
   mounted() {
-    if (this.value.startsWith("#")) {
-      this.hex = this.value;
-      this.handleHex(this.value);
-    }
-    if (this.value.startsWith("rgb")) {
-      const matches = this.value.match(rgbaRegex);
-
-      if (matches) {
-        this.rgb.red = parseInt(matches[1]);
-        this.rgb.green = parseInt(matches[2]);
-        this.rgb.blue = parseInt(matches[3]);
-        this.alpha = matches[4] ? parseFloat(matches[4]) * 100 : 100;
-      }
-      this.handleRgb(this.rgb.red, this.rgb.green, this.rgb.blue);
-    }
+    this.handleRecalcColor(this.value);
   },
   computed: {
     topSelect() {
@@ -83,7 +69,7 @@ export default {
     },
     alphaMark: {
       get() {
-        return Math.round(this.alpha);
+        return this.alpha;
       },
       set(value) {
         this.alpha = value;
@@ -91,7 +77,7 @@ export default {
     },
     saturationMark: {
       get() {
-        return Math.round(this.hsb.saturation);
+        return this.hsb.saturation;
       },
       set(value) {
         this.hsb.saturation = value;
@@ -99,7 +85,7 @@ export default {
     },
     brightnessMark: {
       get() {
-        return Math.round(this.hsb.brightness);
+        return this.hsb.brightness;
       },
       set(value) {
         this.hsb.brightness = value;
@@ -107,7 +93,7 @@ export default {
     },
     hueMark: {
       get() {
-        return Math.round(this.hsb.hue);
+        return this.hsb.hue;
       },
       set(value) {
         this.hsb.hue = value;
@@ -115,7 +101,7 @@ export default {
     },
     redMark: {
       get() {
-        return Math.round(this.rgb.red);
+        return this.rgb.red;
       },
       set(value) {
         this.rgb.red = value;
@@ -123,7 +109,7 @@ export default {
     },
     greenMark: {
       get() {
-        return Math.round(this.rgb.green);
+        return this.rgb.green;
       },
       set(value) {
         this.rgb.green = value;
@@ -131,7 +117,7 @@ export default {
     },
     blueMark: {
       get() {
-        return Math.round(this.rgb.blue);
+        return this.rgb.blue;
       },
       set(value) {
         this.rgb.blue = value;
@@ -147,33 +133,60 @@ export default {
           this.hex = `#${valueAccents}`;
         }
       }
+    },
+    inputRgbOptions() {
+      return Object.entries(this.rgb).map(([key, value]) => ({ key, value: `${key}Mark` }));
+    },
+    inputHsbOptions() {
+      return Object.entries(this.hsb).map(([key, value]) => ({ key, value: `${key}Mark` }));
     }
   },
   methods: {
+    handleRecalcColor(color) {
+      if (color.startsWith("#")) {
+        this.hex = color;
+        this.handleHex(color);
+      } else if (color.startsWith("rgb")) {
+        const [red, green, blue, alpha] = rgbaToArray(color);
+        this.rgb = { red, green, blue };
+        this.alpha = alpha * 100;
+        this.handleRgb(red, green, blue);
+      }
+
+      this.handleRecalcPickerPosition();
+    },
+    handleRecalcPickerPosition() {
+      const gradientRect = this.$refs.pickerGradient.getBoundingClientRect();
+      const selectRect = this.$refs.pickerSelect.getBoundingClientRect();
+
+      this.clientXGradient = gradientRect.width * (this.hsb.hue / 360) - 6;
+      this.clientX = selectRect.width * (this.hsb.saturation / 100) - 8;
+      this.clientY = selectRect.height * ((100 - this.hsb.brightness) / 100) - 8;
+    },
     updateSaturationAndBrightness() {
-      const rect = this.$refs.pickerSaturation.getBoundingClientRect();
-      const saturation = ((this.clientX + 8) / rect.width) * 100;
-      const brightness = 100 - ((this.clientY + 8) / rect.height) * 100;
+      const pickerSaturation = this.$refs.pickerSaturation.getBoundingClientRect();
+      const pickerCursor = this.$refs.pickerCursor.getBoundingClientRect();
+      const saturation = Math.round(((this.clientX + pickerCursor.width / 2) / pickerSaturation.width) * 100);
+      const brightness = 100 - Math.round(((this.clientY + pickerCursor.height / 2) / pickerSaturation.height) * 100);
       this.hsb.saturation = saturation;
       this.hsb.brightness = brightness;
       this.handleColorChange("hsb");
     },
     updateHue() {
       const gradientRect = this.$refs.pickerGradient.getBoundingClientRect();
-      const hue = ((this.clientXGradient + 6) / gradientRect.width) * 360;
+      const hue = Math.round(((this.clientXGradient + 6) / gradientRect.width) * 360);
       this.hsb.hue = hue;
       this.handleColorChange("hsb");
     },
     updateAlpha() {
       const alphaRect = this.$refs.pickerAlpha.getBoundingClientRect();
-      const alpha = ((this.clientXAlpha + 6) / alphaRect.width) * 100;
+      const alpha = Math.round(((this.clientXAlpha + 6) / alphaRect.width) * 100);
+      const hexOpacity = Math.round((alpha / 100) * 255)
+        .toString(16)
+        .padStart(2, "0");
+
       this.alpha = alpha;
-      const hexOpacity = (alpha / 100) * (255).toString(16).padStart(2, "0");
       this.hex = `#${this.hex.replace("#", "").slice(0, 6)}${hexOpacity}`;
-    },
-    updateColorFromHsb(h = this.hsb.hue, s = this.hsb.saturation, b = this.hsb.brightness) {
-      [this.rgb.red, this.rgb.green, this.rgb.blue] = hsbToRgb(h, s, b);
-      this.hex = `#${rgbToHex(this.rgb.red, this.rgb.green, this.rgb.blue)}`;
     },
     handleColorChange(type = this.selector) {
       switch (type) {
@@ -186,6 +199,8 @@ export default {
         case "hsb":
           this.handleHsb(this.hsb.hue, this.hsb.saturation, this.hsb.brightness);
       }
+
+      this.handleRecalcPickerPosition();
 
       this.$emit("change", {
         hex: this.hex,
@@ -200,15 +215,7 @@ export default {
       this.hex = `#${rgbToHex(red, green, blue)}`;
     },
     handleHex(value) {
-      const replaceValue = value.replace("#", "");
-      const getValue =
-        replaceValue.length == 7
-          ? replaceValue.slice(0, 6)
-          : replaceValue.length >= 8
-            ? replaceValue.slice(0, 8)
-            : replaceValue;
-
-      const [red, green, blue, alpha] = hexToRgb(getValue);
+      const [red, green, blue, alpha] = hexToRgb(value);
       this.rgb = { red, green, blue };
       this.alpha = (alpha / 255) * 100;
       [this.hsb.hue, this.hsb.saturation, this.hsb.brightness] = rgbToHsb(red, green, blue);
@@ -311,6 +318,13 @@ export default {
     document.removeEventListener("mousemove", this.onMouseMoveAlpha);
     document.removeEventListener("mouseup", this.onMouseUpAlpha);
   }
+  // watch: {
+  //   value(newValue) {
+  //     if (newValue.startsWith("#")) this.handleHex(newValue);
+  //     if (newValue.startsWith("rgb")) this.handleRgb(newValue);
+  //     if (newValue.startsWith("hsb")) this.handleHsb(newValue);
+  //   }
+  // }
 };
 </script>
 
@@ -325,6 +339,7 @@ export default {
             top: topSelect,
             zIndex: 1
           }"
+          ref="pickerCursor"
         >
           <div class="color-picker-handler" :style="{ background: backgroundPicker }" />
         </div>
@@ -412,59 +427,27 @@ export default {
           </div>
           <div class="color-picker-input-rgb" v-if="selector === 'rgb'">
             <input
+              v-for="option in inputRgbOptions"
               type="number"
               min="0"
               max="255"
               maxlength="3"
-              name="red"
-              v-model="redMark"
-              @input="() => handleColorChange()"
-            />
-            <input
-              type="number"
-              min="0"
-              max="255"
-              maxlength="3"
-              name="green"
-              v-model="greenMark"
-              @input="() => handleColorChange()"
-            />
-            <input
-              type="number"
-              min="0"
-              max="255"
-              name="blue"
-              maxlength="3"
-              v-model="blueMark"
+              :key="option.key"
+              :name="option.key"
+              v-model="this[option.value]"
               @input="() => handleColorChange()"
             />
           </div>
           <div class="color-picker-input-hsb" v-if="selector === 'hsb'">
             <input
-              name="hue"
+              v-for="option in inputHsbOptions"
               type="number"
               min="0"
-              max="360"
+              :max="option.key == 'hue' ? 360 : 100"
               maxlength="3"
-              v-model="hueMark"
-              @input="() => handleColorChange()"
-            />
-            <input
-              name="saturation"
-              type="number"
-              min="0"
-              max="100"
-              maxlength="3"
-              v-model="saturationMark"
-              @input="() => handleColorChange()"
-            />
-            <input
-              name="brightness"
-              type="number"
-              min="0"
-              max="100"
-              maxlength="3"
-              v-model="brightnessMark"
+              :key="option.key"
+              :name="option.key"
+              v-model="this[option.value]"
               @input="() => handleColorChange()"
             />
           </div>

@@ -10,20 +10,6 @@ You are visiting [Color Picker](https://vuluu2k.github.io/color-picker-vue3/) no
 
 ![image](https://github.com/vuluu2k/color-picker-vue3/assets/73820126/619e72a7-f62b-47b2-a0d1-d7f1fb7823ae)
 
-## Run Project
-
-1. install despencies
-
-```cmd
-yarn
-```
-
-2. run project
-
-```cmd
-yarn dev
-```
-
 ## Contact
 
 Vũ Lưu
