@@ -2,7 +2,7 @@
 import { hexToRgb, rgbToHex, hsbToRgb, rgbToHsb, removeAccents, rgbaToArray } from "../../utils";
 import colorMixin from "../../mixins/colorMixin";
 export default {
-  emits: ["change", "blur", "update:value"],
+  emits: ["change", "blur", "update:value", "ok", "cancel"],
   mixins: [colorMixin],
   props: {
     class: {
@@ -105,7 +105,10 @@ export default {
         alpha: this.alpha,
         selection: this.selection
       });
-      this.$emit("update:value", this[this.output]);
+
+      const value = this[this.output];
+      if (this.output == "rgba") value.push(this.alpha);
+      this.$emit("update:value", value);
     },
     // Mouse move event
     onMouseDown(event) {
@@ -172,6 +175,12 @@ export default {
     onMouseUpAlpha(event) {
       document.removeEventListener("mousemove", this.onMouseMoveAlpha);
       document.removeEventListener("mouseup", this.onMouseUpAlpha);
+    },
+    handleCancel() {
+      this.$emit("cancel");
+    },
+    handleOk() {
+      this.$emit("ok");
     }
   },
   beforeUnmount() {
@@ -181,6 +190,12 @@ export default {
     document.removeEventListener("mouseup", this.onMouseUpGradient);
     document.removeEventListener("mousemove", this.onMouseMoveAlpha);
     document.removeEventListener("mouseup", this.onMouseUpAlpha);
+  },
+  watch: {
+    value() {
+      this.handleRecalcColor(this.value);
+      this.handleRecalcPickerPosition();
+    }
   }
 };
 </script>
@@ -314,8 +329,8 @@ export default {
       </div>
     </div>
     <div class="color-picker-buttons">
-      <button class="color-picker-cancel">{{ cancelText }}</button>
-      <button class="color-picker-apply">{{ okText }}</button>
+      <button class="color-picker-cancel" @click.stop.prevent="handleCancel">{{ cancelText }}</button>
+      <button class="color-picker-apply" @click.stop.prevent="handleOk">{{ okText }}</button>
     </div>
   </div>
 </template>

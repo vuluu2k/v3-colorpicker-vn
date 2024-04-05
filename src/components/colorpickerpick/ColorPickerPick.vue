@@ -73,6 +73,7 @@ export default {
   methods: {
     async toggle(event) {
       this.show = !this.show;
+      if (!this.show) this.view = "color_custom";
       await this.$nextTick();
       const picker = this.$refs.picker.getBoundingClientRect();
       if (this.show) {
@@ -86,18 +87,8 @@ export default {
         }
       }
     },
-    async setView(view, value) {
+    setView(view) {
       this.view = view;
-      await this.$nextTick();
-    },
-    handleColorChangeCp(color, selection) {
-      let colorValue = color;
-      if (this.output == "rgb") {
-        const [r, g, b, a] = this.hexToRgb(colorValue);
-        colorValue = `rgba(${r},${g},${b},${a / 255})`;
-      }
-      this.$emit("update:value", colorValue);
-      this.$emit("change", colorValue, selection);
     },
     onMouseDownLocation(event) {
       const headerRect = this.$refs.pickerHeader.getBoundingClientRect();
@@ -114,24 +105,45 @@ export default {
       document.removeEventListener("mousemove", this.onMouseMoveLocation);
       document.removeEventListener("mouseup", this.onMouseUpLocation);
     },
-    handleAlphaChange({ value, selection }) {
-      const alphaHex = Math.round((value / 100) * 255)
+    handleAlphaChange({ alpha, selection }) {
+      this.selection = selection;
+      const alphaHex = Math.round((alpha / 100) * 255)
         .toString(16)
         .padStart(2, "0");
       this.hex = `${this.hex.slice(0, 7)}${alphaHex}`;
       this.handleColorChange("hex");
+      this.handleExportColor();
     },
     handleHexChange() {
       this.handleColorChange("hex");
+      this.handleExportColor();
     },
-    getColorFromComponent({ hex, rgb, hsb, alpha, selection }) {
-      this.hex = hex;
-      this.rgb = rgb;
-      this.hsb = hsb;
-      this.alpha = alpha;
-      this.selection = selection;
+    getColorFromComponent(event) {
+      switch (this.view) {
+        case "color_picker":
+          const { hex, rgb, hsb, alpha, selection } = event;
+          this.hex = hex;
+          this.rgb = rgb;
+          this.hsb = hsb;
+          this.alpha = alpha;
+          this.selection = selection;
+          this.handleExportColor();
+          break;
+        case "color_custom":
+          this.hex = event;
+          this.handleColorChange("hex");
+          this.handleExportColor();
+      }
+    },
+    handleExportColor() {
       this.$emit("update:value", this[this.output]);
-      this.$emit("change", { hex, rgb, hsb, alpha, selection });
+      this.$emit("change", {
+        hex: this.hex,
+        rgb: this.rgb,
+        hsb: this.hsb,
+        alpha: this.alpha,
+        selection: this.selection
+      });
     }
   },
   beforeUnmount() {
@@ -163,7 +175,7 @@ export default {
           @mousedown="savedSelection"
           @blur="restoreSelection"
         />
-        <VuProgressInput v-model:value="alpha" v-model:selection="selection" @change="handleAlphaChange" />
+        <VuProgressInput :value="alpha" :selection="selection" @change="handleAlphaChange" />
       </div>
     </div>
 

@@ -1,5 +1,5 @@
 import { rgbToHsb, hsbToRgb, hexToRgb, rgbToHex, rgbaToArray, removeAccents } from "../utils";
-import { ComputedOptions, ComponentOptionsMixin } from "vue";
+import { ComponentOptionsMixin } from "vue";
 
 type dataType = {
   hex: string;
@@ -135,7 +135,7 @@ const colorMixin: ComponentOptionsMixin = {
     handleHex(value: string): void {
       const [red, green, blue, alpha] = hexToRgb(value);
       this.rgb = { red, green, blue };
-      this.alpha = (alpha / 255) * 100;
+      this.alpha = Math.round((alpha / 255) * 100);
       [this.hsb.hue, this.hsb.saturation, this.hsb.brightness] = rgbToHsb(red, green, blue);
     },
     /**

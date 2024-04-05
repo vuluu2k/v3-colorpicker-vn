@@ -5,8 +5,8 @@ import vue from "rollup-plugin-vue";
 import node from "@rollup/plugin-node-resolve";
 import cjs from "@rollup/plugin-commonjs";
 import babel from "@rollup/plugin-babel";
-import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
+import terser from "@rollup/plugin-terser";
 
 import fs from "fs";
 import path from "path";
@@ -23,20 +23,20 @@ const entries = {
   ...components.reduce((obj, name) => {
     obj[name] = baseFolderPath + name;
     return obj;
-  }, {}),
+  }, {})
 };
 
 const babelOptions = {
-  babelHelpers: "bundled",
+  babelHelpers: "bundled"
 };
 
 const vuePluginConfig = {
   template: {
     isProduction: true,
     compilerOptions: {
-      whitespace: "condense",
-    },
-  },
+      whitespace: "condense"
+    }
+  }
 };
 
 const capitalize = (s) => {
@@ -53,19 +53,19 @@ export default () => {
         format: "esm",
         dir: `dist/esm`,
         entryFileNames: "[name].mjs",
-        chunkFileNames: "[name]-[hash].mjs",
+        chunkFileNames: "[name]-[hash].mjs"
       },
       plugins: [
         node({
-          extensions: [".vue", ".ts"],
+          extensions: [".vue", ".ts"]
         }),
         typescript({
-          typescript: require("typescript"),
+          typescript: require("typescript")
         }),
         vue(vuePluginConfig),
         babel(babelOptions),
-        cjs(),
-      ],
+        cjs()
+      ]
     },
     {
       input: "src/index.ts",
@@ -73,19 +73,19 @@ export default () => {
       output: {
         format: "esm",
         file: "dist/v3-colorpicker-vn.mjs",
-        banner: banner,
+        banner: banner
       },
       plugins: [
         node({
-          extensions: [".vue", ".ts"],
+          extensions: [".vue", ".ts"]
         }),
         typescript({
-          typescript: require("typescript"),
+          typescript: require("typescript")
         }),
         vue(vuePluginConfig),
         babel(babelOptions),
-        cjs(),
-      ],
+        cjs()
+      ]
     },
     {
       input: entries,
@@ -93,19 +93,19 @@ export default () => {
       output: {
         format: "cjs",
         dir: "dist/cjs",
-        exports: "named",
+        exports: "named"
       },
       plugins: [
         node({
-          extensions: [".vue", ".ts"],
+          extensions: [".vue", ".ts"]
         }),
         typescript({
-          typescript: require("typescript"),
+          typescript: require("typescript")
         }),
         vue(vuePluginConfig),
         babel(babelOptions),
-        cjs(),
-      ],
+        cjs()
+      ]
     },
     {
       input: "src/index.ts",
@@ -117,21 +117,21 @@ export default () => {
         exports: "named",
         banner: banner,
         globals: {
-          vue: "Vue",
-        },
+          vue: "Vue"
+        }
       },
       plugins: [
         node({
-          extensions: [".vue", ".ts"],
+          extensions: [".vue", ".ts"]
         }),
         typescript({
-          typescript: require("typescript"),
+          typescript: require("typescript")
         }),
         vue(vuePluginConfig),
         babel(babelOptions),
-        cjs(),
-      ],
-    },
+        cjs()
+      ]
+    }
   ];
 
   if (process.env.MINIFY === "true") {
@@ -141,8 +141,8 @@ export default () => {
       c.plugins.push(
         terser({
           output: {
-            comments: "/^!/",
-          },
+            comments: "/^!/"
+          }
         })
       );
     });

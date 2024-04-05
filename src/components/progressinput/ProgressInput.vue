@@ -18,8 +18,12 @@ export default {
   methods: {
     handleChange(event) {
       const value = Number(event.target.value);
-      this.$emit("update:value", value, this.selection);
-      this.$emit("change", value, this.selection);
+      this.handleAlphaChange(value);
+    },
+    handleAlphaChange(alpha) {
+      this.$emit("update:value", alpha);
+      this.$emit("update:selection", this.selection);
+      this.$emit("change", { alpha, selection: this.selection });
     },
     onMouseDown(event) {
       this.startX = event.clientX;
@@ -31,9 +35,7 @@ export default {
       const change = event.clientX - this.startX;
       const alpha = Math.min(Math.round(this.oldValue + change), 100);
       if (0 <= alpha && alpha <= 100) {
-        this.$emit("update:value", alpha);
-        this.$emit("update:selection", this.selection);
-        this.$emit("change", { alpha, selection: this.selection });
+        this.handleAlphaChange(alpha);
       }
     },
     onMouseUp(event) {
