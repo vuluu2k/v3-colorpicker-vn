@@ -1,12 +1,10 @@
 <script>
 import { hexToRgb, rgbToHex, hsbToRgb, rgbToHsb, removeAccents, rgbaToArray } from "../../utils";
+import colorMixin from "../../mixins/colorMixin";
 export default {
   emits: ["change", "blur", "update:value"],
+  mixins: [colorMixin],
   props: {
-    value: {
-      type: String,
-      default: "#000000"
-    },
     class: {
       type: String,
       default: ""
@@ -30,25 +28,13 @@ export default {
       listSelector: ["hex", "rgb", "hsb"],
       clientX: 0,
       clientY: 0,
-      hsb: {
-        hue: 0,
-        saturation: 0,
-        brightness: 0
-      },
-      rgb: {
-        red: 0,
-        green: 0,
-        blue: 0
-      },
-      hex: "#000000",
-      alpha: -1,
       clientXGradient: 0,
       clientXAlpha: 0,
       selection: null
     };
   },
   mounted() {
-    this.handleRecalcColor(this.value);
+    this.handleRecalcPickerPosition();
   },
   computed: {
     topSelect() {
@@ -67,73 +53,6 @@ export default {
     backgroundBlock() {
       return `rgba(${this.rgb.red},${this.rgb.green},${this.rgb.blue}, ${this.alpha / 100})`;
     },
-    alphaMark: {
-      get() {
-        return this.alpha;
-      },
-      set(value) {
-        this.alpha = value;
-      }
-    },
-    saturationMark: {
-      get() {
-        return this.hsb.saturation;
-      },
-      set(value) {
-        this.hsb.saturation = value;
-      }
-    },
-    brightnessMark: {
-      get() {
-        return this.hsb.brightness;
-      },
-      set(value) {
-        this.hsb.brightness = value;
-      }
-    },
-    hueMark: {
-      get() {
-        return this.hsb.hue;
-      },
-      set(value) {
-        this.hsb.hue = value;
-      }
-    },
-    redMark: {
-      get() {
-        return this.rgb.red;
-      },
-      set(value) {
-        this.rgb.red = value;
-      }
-    },
-    greenMark: {
-      get() {
-        return this.rgb.green;
-      },
-      set(value) {
-        this.rgb.green = value;
-      }
-    },
-    blueMark: {
-      get() {
-        return this.rgb.blue;
-      },
-      set(value) {
-        this.rgb.blue = value;
-      }
-    },
-    hexMark: {
-      get() {
-        return this.hex;
-      },
-      set(value) {
-        const valueAccents = removeAccents(value).replace(/#|\s/g, "");
-        if ([6, 8].includes(valueAccents.length)) {
-          this.hex = `#${valueAccents}`;
-        }
-      }
-    },
     inputRgbOptions() {
       return Object.entries(this.rgb).map(([key, value]) => ({ key, value: `${key}Mark` }));
     },
@@ -142,19 +61,6 @@ export default {
     }
   },
   methods: {
-    handleRecalcColor(color) {
-      if (color.startsWith("#")) {
-        this.hex = color;
-        this.handleHex(color);
-      } else if (color.startsWith("rgb")) {
-        const [red, green, blue, alpha] = rgbaToArray(color);
-        this.rgb = { red, green, blue };
-        this.alpha = alpha * 100;
-        this.handleRgb(red, green, blue);
-      }
-
-      this.handleRecalcPickerPosition();
-    },
     handleRecalcPickerPosition() {
       const gradientRect = this.$refs.pickerGradient.getBoundingClientRect();
       const selectRect = this.$refs.pickerSelect.getBoundingClientRect();
@@ -170,13 +76,13 @@ export default {
       const brightness = 100 - Math.round(((this.clientY + pickerCursor.height / 2) / pickerSaturation.height) * 100);
       this.hsb.saturation = saturation;
       this.hsb.brightness = brightness;
-      this.handleColorChange("hsb");
+      this.handleColorChangePosition("hsb");
     },
     updateHue() {
       const gradientRect = this.$refs.pickerGradient.getBoundingClientRect();
       const hue = Math.round(((this.clientXGradient + 6) / gradientRect.width) * 360);
       this.hsb.hue = hue;
-      this.handleColorChange("hsb");
+      this.handleColorChangePosition("hsb");
     },
     updateAlpha() {
       const alphaRect = this.$refs.pickerAlpha.getBoundingClientRect();
@@ -188,41 +94,18 @@ export default {
       this.alpha = alpha;
       this.hex = `#${this.hex.replace("#", "").slice(0, 6)}${hexOpacity}`;
     },
-    handleColorChange(type = this.selector) {
-      switch (type) {
-        case "hex":
-          this.handleHex(this.hex);
-          break;
-        case "rgb":
-          this.handleRgb(this.rgb.red, this.rgb.green, this.rgb.blue);
-          break;
-        case "hsb":
-          this.handleHsb(this.hsb.hue, this.hsb.saturation, this.hsb.brightness);
-      }
-
+    handleColorChangePosition(type = this.selector) {
+      this.handleColorChange(type);
       this.handleRecalcPickerPosition();
 
       this.$emit("change", {
         hex: this.hex,
         rgb: this.rgb,
         hsb: this.hsb,
+        alpha: this.alpha,
         selection: this.selection
       });
       this.$emit("update:value", this[this.output]);
-    },
-    handleRgb(red, green, blue) {
-      [this.hsb.hue, this.hsb.saturation, this.hsb.brightness] = rgbToHsb(red, green, blue);
-      this.hex = `#${rgbToHex(red, green, blue)}`;
-    },
-    handleHex(value) {
-      const [red, green, blue, alpha] = hexToRgb(value);
-      this.rgb = { red, green, blue };
-      this.alpha = (alpha / 255) * 100;
-      [this.hsb.hue, this.hsb.saturation, this.hsb.brightness] = rgbToHsb(red, green, blue);
-    },
-    handleHsb(hue, saturation, brightness) {
-      [this.rgb.red, this.rgb.green, this.rgb.blue] = hsbToRgb(hue, saturation, brightness);
-      this.hex = `#${rgbToHex(this.rgb.red, this.rgb.green, this.rgb.blue)}`;
     },
     // Mouse move event
     onMouseDown(event) {
@@ -289,25 +172,6 @@ export default {
     onMouseUpAlpha(event) {
       document.removeEventListener("mousemove", this.onMouseMoveAlpha);
       document.removeEventListener("mouseup", this.onMouseUpAlpha);
-    },
-    onMouseDownInput(event) {
-      this.savedSelection();
-    },
-    onMouseUpInput(event) {
-      event.preventDefault();
-    },
-    savedSelection() {
-      const sel = window.getSelection();
-      if (sel.rangeCount !== 0) {
-        this.selection = window.getSelection().getRangeAt(0);
-      }
-    },
-    restoreSelection() {
-      if (this.selection) {
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(this.selection);
-      }
     }
   },
   beforeUnmount() {
@@ -318,13 +182,6 @@ export default {
     document.removeEventListener("mousemove", this.onMouseMoveAlpha);
     document.removeEventListener("mouseup", this.onMouseUpAlpha);
   }
-  // watch: {
-  //   value(newValue) {
-  //     if (newValue.startsWith("#")) this.handleHex(newValue);
-  //     if (newValue.startsWith("rgb")) this.handleRgb(newValue);
-  //     if (newValue.startsWith("hsb")) this.handleHsb(newValue);
-  //   }
-  // }
 };
 </script>
 
@@ -419,10 +276,9 @@ export default {
               v-model="hexMark"
               name="hex"
               maxlength="9"
-              @input="() => handleColorChange()"
+              @input="handleColorChangePosition()"
               @blur="restoreSelection"
-              @mousedown="onMouseDownInput"
-              @mouseup="onMouseUpInput"
+              @focus="savedSelection"
             />
           </div>
           <div class="color-picker-input-rgb" v-if="selector === 'rgb'">
@@ -435,7 +291,7 @@ export default {
               :key="option.key"
               :name="option.key"
               v-model="this[option.value]"
-              @input="() => handleColorChange()"
+              @input="handleColorChangePosition()"
             />
           </div>
           <div class="color-picker-input-hsb" v-if="selector === 'hsb'">
@@ -448,7 +304,7 @@ export default {
               :key="option.key"
               :name="option.key"
               v-model="this[option.value]"
-              @input="() => handleColorChange()"
+              @input="handleColorChangePosition()"
             />
           </div>
         </div>

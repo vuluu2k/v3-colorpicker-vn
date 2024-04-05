@@ -1,2 +1,17 @@
 @import "components/_colorpicker";
 @import "components/_colorcustom";
+@import "components/_progressinput";
+@import "components/_colorpicker_pick";
+@import "components/_colorpicker_background";
+@import "components/_colorbackgroud";
+
+@keyframes showIn {
+  0% {
+    opacity: 0;
+    transform: translate(0, 5%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}

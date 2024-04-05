@@ -1,7 +1,7 @@
 <script>
 export default {
   name: "VuColorCustom",
-  emits: ["change", "setView"],
+  emits: ["change", "add", "update:value"],
   props: {
     value: {
       type: String,
@@ -35,13 +35,30 @@ export default {
         "#b45ad3",
         "#8e3aaa"
       ]
+    },
+    addText: {
+      type: String,
+      default: "+ Add"
+    },
+    editText: {
+      type: String,
+      default: "Edit"
+    },
+    themeText: {
+      type: String,
+      default: "Theme colors"
+    },
+    colorText: {
+      type: String,
+      default: "My colors"
+    },
+    class: {
+      type: String,
+      default: ""
     }
   },
   mounted() {
     this.previewColor = this.value;
-    if (this.value.includes("gradient")) {
-      this.$emit("change", "rgba(0,0,0,1)");
-    }
   },
   data() {
     return {
@@ -56,21 +73,22 @@ export default {
       this.previewColor = this.value;
     },
     onAdd() {
-      this.$emit("setView", "ColorPicker");
+      this.$emit("add");
     },
     onSelectColor(color) {
       this.$emit("change", color);
+      this.$emit("update:value", color);
     }
   }
 };
 </script>
 
 <template>
-  <div class="color-custom">
+  <div class="color-custom" :class="class">
     <div class="color-custom-container">
       <div class="color-custom-add">
-        <div class="color-custom-add-title">Theme colors</div>
-        <div class="color-custom-add-action">Edit</div>
+        <div class="color-custom-add-title">{{ themeText }}</div>
+        <div class="color-custom-add-action">{{ editText }}</div>
       </div>
 
       <div class="color-custom-themes">
@@ -89,8 +107,8 @@ export default {
       </div>
 
       <div class="color-custom-add">
-        <div class="color-custom-add-title">My colors</div>
-        <div class="color-custom-add-action" @mousedown.prevent="onAdd">+ Add</div>
+        <div class="color-custom-add-title">{{ colorText }}</div>
+        <div class="color-custom-add-action" @mousedown.prevent="onAdd">{{ addText }}</div>
       </div>
       <div class="color-custom-colors">
         <div v-for="(color, index) in colors" class="color-custom-item" :key="index">
@@ -100,6 +118,7 @@ export default {
             @mousedown.stop.prevent="onSelectColor(color)"
             :data-color="color"
             class="color-custom-item-inner"
+            :class="{ active: color === value }"
             :style="{ background: color }"
           ></div>
         </div>

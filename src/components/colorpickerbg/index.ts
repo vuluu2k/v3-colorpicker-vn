@@ -1,11 +1,11 @@
 import { App, Plugin } from "vue";
 
-import ColorPickerBackground from "./ColorPickerBackground.vue";
+import ColorPickerBg from "./ColorPickerBg.vue";
 
 export default {
   install(Vue: App) {
-    Vue.component(ColorPickerBackground.name as string, ColorPickerBackground);
-  },
+    Vue.component(ColorPickerBg.name as string, ColorPickerBg);
+  }
 } as Plugin;
 
-export { ColorPickerBackground as VuColorPickerBackground };
+export { ColorPickerBg as VuColorPickerBg };

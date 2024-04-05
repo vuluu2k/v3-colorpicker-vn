@@ -1,0 +1,20 @@
+.vu-progress-input {
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  input {
+    all: unset;
+    height: 100%;
+    padding: 0 6px;
+
+    &[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+}
