@@ -1,4 +1,5 @@
 <script>
+import { parseConicGradient, parseLinearGradient, parseRadialGradient } from "../../utils";
 import { VuColorPickerPick } from "../colorpickerpick";
 
 export default {
@@ -22,13 +23,18 @@ export default {
         "conic-gradient(from 152deg at 50% 50%, rgba(0, 87, 225, 1) 0%, rgba(249, 197, 180, 1) 68%, rgba(0, 87, 225, 1) 100%)",
         "conic-gradient(from 136deg at 50% 0%, rgba(85, 14, 155, 1) 0%, rgba(128, 21, 232, 1) 6%, rgba(243, 167, 143, 1) 12%, rgba(85, 14, 155, 1) 28%)"
       ]
+    },
+    gradientColorSaved: {
+      type: Array,
+      default: []
+    },
+    gradientCountSaved: {
+      type: Number,
+      default: 24
     }
   },
   mounted() {
-    this.handleChangeValue(this.value);
-    if (!this.value.includes("gradient")) {
-      this.$emit("change", "linear-gradient(90deg, rgba(145, 133, 122, 1) 0%, rgba(242, 222, 204, 1) 100%)");
-    }
+    this.handleRecalcGradient(this.value);
   },
   data() {
     return {
@@ -39,7 +45,7 @@ export default {
       },
       gradientType: "linear",
       colorIndexSelected: 0,
-      processColors: [
+      progressColors: [
         { x: 0, r: 145, g: 133, b: 122, a: 1 },
         { x: 128, r: 242, g: 222, b: 204, a: 1 }
       ],
@@ -61,10 +67,15 @@ export default {
   },
   computed: {
     gradientColors() {
-      return this.gradientColorsDefault;
+      return [...this.gradientColorSaved, ...this.gradientColorsDefault].slice(0, this.gradientCountSaved);
+    },
+    progressColorsComputed() {
+      return this.progressColors.map((process) => {
+        return { ...process, color: `rgba(${process.r}, ${process.g}, ${process.b}, ${process.a})` };
+      });
     },
     colorsPreview() {
-      const colors = this.processColors.map((process) => {
+      const colors = this.progressColorsComputed.map((process) => {
         const processPercent = Math.round((process.x / 128) * 100);
         return `${process.color} ${processPercent}%`;
       });
@@ -72,182 +83,177 @@ export default {
       return colors.join(", ").trim();
     },
     gradientPreview() {
-      const gradient =
-        this.gradientType == "linear"
-          ? `linear-gradient(${this.degree}deg`
-          : this.gradientType == "radial"
-            ? `radial-gradient(circle at ${(this.radialPointer.x / 240) * 100}% ${(this.radialPointer.y / 120) * 100}%`
-            : `conic-gradient(from ${this.conicPointer.degree}deg at ${
-                (this.conicPointer.x / 240) * 100
-              }% ${(this.conicPointer.y / 120) * 100}%`;
+      let gradient;
+      switch (this.gradientType) {
+        case "linear":
+          gradient = `linear-gradient(${this.degree}deg`;
+          break;
+        case "radial":
+          gradient = `radial-gradient(circle at ${(this.radialPointer.x / 240) * 100}% ${(this.radialPointer.y / 120) * 100}%`;
+          break;
+        case "conic":
+          gradient = `conic-gradient(from ${this.conicPointer.degree}deg at ${(this.conicPointer.x / 240) * 100}% ${(this.conicPointer.y / 120) * 100}%`;
+          break;
+      }
 
       return `${gradient}, ${this.colorsPreview})`;
     },
-    colorPickerValue: {
+    progressColorSelected() {
+      return this.progressColors[this.colorIndexSelected];
+    },
+    alpha: {
       get() {
-        return this.processColors[this.colorIndexSelected].color;
+        return Math.round(this.progressColorSelected.a * 100);
       },
       set(value) {
-        const [r, g, b, a] = value;
-        this.processColors[this.colorIndexSelected].color = `rgba(${r}, ${g}, ${b}, ${a})`;
-        this.processColors[this.colorIndexSelected].r = r;
-        this.processColors[this.colorIndexSelected].g = g;
-        this.processColors[this.colorIndexSelected].b = b;
-        this.processColors[this.colorIndexSelected].a = a;
+        this.progressColorSelected.a = value / 100;
+      }
+    },
+    colorPickerValue: {
+      get() {
+        const color = this.progressColorSelected;
+        return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+      },
+      set(value) {
+        const { red, green, blue, alpha } = value;
+        this.progressColorSelected.r = red;
+        this.progressColorSelected.g = green;
+        this.progressColorSelected.b = blue;
+        this.progressColorSelected.a = alpha / 100;
       }
     }
   },
   methods: {
+    handleExport() {
+      this.$emit("change", this.gradientPreview);
+      this.$emit("update:value", this.gradientPreview);
+    },
     onMouseDownGradient(event) {
       const previewRect = this.$refs.gradientPreview.getBoundingClientRect();
-      if (this.gradientType == "linear") {
-        this.centalPoint.x = previewRect.left + previewRect.width / 2;
-        this.centalPoint.y = previewRect.top + previewRect.height / 2;
-        this.degree = this.handleRoundCentral(event.clientX, event.clientY, this.centalPoint.x, this.centalPoint.y);
-      } else if (this.gradientType == "radial") {
-        this.radialPointer.x = event.clientX - previewRect.left;
-        this.radialPointer.y = event.clientY - previewRect.top;
-      } else if (this.gradientType == "conic") {
-        const conicPointerRect = this.$refs.conicPointer.getBoundingClientRect();
-        if (event.target.id == "conic-slider") {
-          this.conicPointer.central.x = conicPointerRect.left + conicPointerRect.width / 2;
-          this.conicPointer.central.y = conicPointerRect.top + conicPointerRect.height / 2;
-          this.conicPointer.degree = this.handleRoundCentral(
-            event.clientX,
-            event.clientY,
-            this.conicPointer.central.x,
-            this.conicPointer.central.y
-          );
-          this.conicPointer.key = "conic-slider";
-        } else {
-          this.conicPointer.x = event.clientX - previewRect.left;
-          this.conicPointer.y = event.clientY - previewRect.top;
-          this.conicPointer.key = "conic-pointer";
-        }
+      switch (this.gradientType) {
+        case "linear":
+          this.centalPoint.x = previewRect.left + previewRect.width / 2;
+          this.centalPoint.y = previewRect.top + previewRect.height / 2;
+          this.degree = this.handleRoundCentral(event.clientX, event.clientY, this.centalPoint.x, this.centalPoint.y);
+          break;
+
+        case "radial":
+          this.radialPointer.x = event.clientX - previewRect.left;
+          this.radialPointer.y = event.clientY - previewRect.top;
+          break;
+
+        case "conic":
+          const conicPointerRect = this.$refs.conicPointer.getBoundingClientRect();
+          if (event.target.id == "conic-slider") {
+            this.conicPointer.central.x = conicPointerRect.left + conicPointerRect.width / 2;
+            this.conicPointer.central.y = conicPointerRect.top + conicPointerRect.height / 2;
+            this.conicPointer.degree = this.handleRoundCentral(
+              event.clientX,
+              event.clientY,
+              this.conicPointer.central.x,
+              this.conicPointer.central.y
+            );
+            this.conicPointer.key = "conic-slider";
+          } else {
+            this.conicPointer.x = event.clientX - previewRect.left;
+            this.conicPointer.y = event.clientY - previewRect.top;
+            this.conicPointer.key = "conic-pointer";
+          }
+          break;
       }
+
       document.addEventListener("mousemove", this.onMouseMoveGradient);
       document.addEventListener("mouseup", this.onMouseUpGradient);
     },
     onMouseMoveGradient(event) {
-      if (this.gradientType == "linear") {
-        this.degree = this.handleRoundCentral(event.clientX, event.clientY, this.centalPoint.x, this.centalPoint.y);
-      } else if (this.gradientType == "radial") {
-        const previewRect = this.$refs.gradientPreview.getBoundingClientRect();
-        if (previewRect.top < event.clientY && event.clientY < previewRect.bottom) {
-          this.radialPointer.y = event.clientY - previewRect.top;
-        }
-        if (previewRect.left < event.clientX && event.clientX < previewRect.right) {
-          this.radialPointer.x = event.clientX - previewRect.left;
-        }
-        if (previewRect.right <= event.clientX) {
-          this.radialPointer.x = previewRect.width;
-        }
-        if (previewRect.left >= event.clientX) {
-          this.radialPointer.x = 0;
-        }
-        if (previewRect.bottom <= event.clientY) {
-          this.radialPointer.y = previewRect.height;
-        }
-        if (previewRect.top >= event.clientY) {
-          this.radialPointer.y = 0;
-        }
-      } else if (this.gradientType == "conic") {
-        if (this.conicPointer.key == "conic-slider")
-          this.conicPointer.degree = this.handleRoundCentral(
-            event.clientX,
-            event.clientY,
-            this.conicPointer.central.x,
-            this.conicPointer.central.y
-          );
-        else if (this.conicPointer.key == "conic-pointer") {
-          const previewRect = this.$refs.gradientPreview.getBoundingClientRect();
-          if (previewRect.top < event.clientY && event.clientY < previewRect.bottom) {
-            this.conicPointer.y = event.clientY - previewRect.top;
-          }
-          if (previewRect.left < event.clientX && event.clientX < previewRect.right) {
-            this.conicPointer.x = event.clientX - previewRect.left;
-          }
-          if (previewRect.right <= event.clientX) {
-            this.conicPointer.x = previewRect.width;
-          }
-          if (previewRect.left >= event.clientX) {
-            this.conicPointer.x = 0;
-          }
-          if (previewRect.bottom <= event.clientY) {
-            this.conicPointer.y = previewRect.height;
-          }
-          if (previewRect.top >= event.clientY) {
-            this.conicPointer.y = 0;
-          }
-        }
+      switch (this.gradientType) {
+        case "linear":
+          this.degree = this.handleRoundCentral(event.clientX, event.clientY, this.centalPoint.x, this.centalPoint.y);
+          break;
+        case "radial":
+          this.handleRadial(event, "radialPointer");
+          break;
+        case "conic":
+          if (this.conicPointer.key == "conic-slider")
+            this.conicPointer.degree = this.handleRoundCentral(
+              event.clientX,
+              event.clientY,
+              this.conicPointer.central.x,
+              this.conicPointer.central.y
+            );
+          else this.handleRadial(event, "conicPointer");
+          break;
       }
     },
     onMouseUpGradient(event) {
-      if (this.gradientType == "conic") {
-        this.conicPointer.key = "";
-      }
+      if (this.gradientType == "conic") this.conicPointer.key = "";
       document.removeEventListener("mousemove", this.onMouseMoveGradient);
       document.removeEventListener("mouseup", this.onMouseUpGradient);
     },
-    onMouseDownProcessColor(event) {
+    onMouseDownProgressColor(event) {
       const colorPickerCustom = this.$refs.colorPickerCustom;
-      if (event.target.id !== "processPointer") {
+      const progressColor = this.$refs.progressColor;
+      if (event.target.id !== "progressPointer" && progressColor) {
         if (colorPickerCustom.show == false) {
           colorPickerCustom.pickerLocation.left = event.clientX - 60;
           colorPickerCustom.pickerLocation.top = event.clientY + 20;
         }
         colorPickerCustom.show = true;
-        const processRect = processColor.getBoundingClientRect();
-        const processX = event.clientX - processRect.left;
-        const newColor = { color: colorPickerCustom.value, x: processX };
+        const progressRect = progressColor.getBoundingClientRect();
+        const processX = event.clientX - progressRect.left;
+        const newColor = {
+          r: colorPickerCustom.rgb.red,
+          g: colorPickerCustom.rgb.green,
+          b: colorPickerCustom.rgb.blue,
+          a: colorPickerCustom.alpha / 100,
+          x: processX
+        };
 
         let insertIndex = -1;
-        for (let i = 0; i < this.processColors.length; i++) {
-          if (this.processColors[i].x === newColor.x) {
+        for (let i = 0; i < this.progressColors.length; i++) {
+          if (this.progressColors[i].x === newColor.x) {
             insertIndex = i;
             break;
-          } else if (this.processColors[i].x > newColor.x) {
+          } else if (this.progressColors[i].x > newColor.x) {
             insertIndex = i;
             break;
           }
         }
 
         if (insertIndex === -1) {
-          this.processColors.push(newColor);
-          this.colorIndexSelected = this.processColors.length - 1;
+          this.progressColors.push(newColor);
+          this.colorIndexSelected = this.progressColors.length - 1;
         } else {
-          this.processColors.splice(insertIndex, 0, newColor);
+          this.progressColors.splice(insertIndex, 0, newColor);
           this.colorIndexSelected = insertIndex;
         }
       } else {
-        document.addEventListener("mousemove", this.onMouseMoveProcessColor);
-        document.addEventListener("mouseup", this.onMouseUpProcessColor);
+        document.addEventListener("mousemove", this.onMouseMoveProgressColor);
+        document.addEventListener("mouseup", this.onMouseUpProgressColor);
       }
     },
-    onMouseMoveProcessColor(event) {
-      const processRect = processColor.getBoundingClientRect();
-      if (processRect.left <= event.clientX && event.clientX <= processRect.right) {
-        const processX = event.clientX - processRect.left;
-        this.processColors[this.colorIndexSelected].x = processX;
+    onMouseMoveProgressColor(event) {
+      const progressRect = progressColor.getBoundingClientRect();
+      if (progressRect.left <= event.clientX && event.clientX <= progressRect.right) {
+        const processX = event.clientX - progressRect.left;
+        this.progressColors[this.colorIndexSelected].x = processX;
       }
-      if (event.clientX <= processRect.left) {
-        this.processColors[this.colorIndexSelected].x = 0;
+      if (event.clientX <= progressRect.left) {
+        this.progressColors[this.colorIndexSelected].x = 0;
       }
-      if (event.clientX >= processRect.right) {
-        this.processColors[this.colorIndexSelected].x = processRect.width;
+      if (event.clientX >= progressRect.right) {
+        this.progressColors[this.colorIndexSelected].x = progressRect.width;
       }
     },
-    onMouseUpProcessColor(event) {
-      document.removeEventListener("mousemove", this.onMouseMoveProcessColor);
-      document.removeEventListener("mouseup", this.onMouseUpProcessColor);
+    onMouseUpProgressColor(event) {
+      document.removeEventListener("mousemove", this.onMouseMoveProgressColor);
+      document.removeEventListener("mouseup", this.onMouseUpProgressColor);
     },
     onMouseDownOpacity(event) {
       const opacityRect = this.$refs.opacityColor.getBoundingClientRect();
-      const alpha = (event.clientX - opacityRect.left) / opacityRect.width;
-      this.processColors[this.colorIndexSelected].color = this.replaceAlpha(
-        this.processColors[this.colorIndexSelected].color,
-        alpha.toFixed(2)
-      );
+      const alpha = ((event.clientX - opacityRect.left) / opacityRect.width).toFixed(2);
+      this.progressColorSelected.a = alpha;
+
       document.addEventListener("mousemove", this.onMouseMoveOpacity);
       document.addEventListener("mouseup", this.onMouseUpOpacity);
     },
@@ -256,7 +262,7 @@ export default {
       let alpha;
 
       if (opacityRect.left <= event.clientX && event.clientX <= opacityRect.right) {
-        alpha = (event.clientX - opacityRect.left) / opacityRect.width;
+        alpha = ((event.clientX - opacityRect.left) / opacityRect.width).toFixed(2);
       }
       if (event.clientX <= opacityRect.left) {
         alpha = 0;
@@ -264,17 +270,12 @@ export default {
       if (event.clientX >= opacityRect.right) {
         alpha = 1;
       }
-      this.processColors[this.colorIndexSelected].color = this.replaceAlpha(
-        this.processColors[this.colorIndexSelected].color,
-        alpha.toFixed(2)
-      );
+
+      this.progressColorSelected.a = alpha;
     },
     onMouseUpOpacity(event) {
       document.removeEventListener("mousemove", this.onMouseMoveOpacity);
       document.removeEventListener("mouseup", this.onMouseUpOpacity);
-    },
-    replaceAlpha(rgbaString, newAlpha) {
-      return rgbaString.replace(/[^,]+(?=\))/, newAlpha);
     },
     handleRoundCentral(clientX, clientY, x, y) {
       const dx = clientX - x;
@@ -283,116 +284,72 @@ export default {
       if (angle < 0) angle += 360;
       return angle;
     },
-    handleChangeColor(color) {
-      this.processColors[this.colorIndexSelected].color = color;
+    handleRadial(event, key) {
+      const previewRect = this.$refs.gradientPreview.getBoundingClientRect();
+      if (previewRect.top < event.clientY && event.clientY < previewRect.bottom) {
+        this[key].y = event.clientY - previewRect.top;
+      }
+      if (previewRect.left < event.clientX && event.clientX < previewRect.right) {
+        this[key].x = event.clientX - previewRect.left;
+      }
+      if (previewRect.right <= event.clientX) {
+        this[key].x = previewRect.width;
+      }
+      if (previewRect.left >= event.clientX) {
+        this[key].x = 0;
+      }
+      if (previewRect.bottom <= event.clientY) {
+        this[key].y = previewRect.height;
+      }
+      if (previewRect.top >= event.clientY) {
+        this[key].y = 0;
+      }
     },
-    handleChangeAlpha(event) {
-      const alpha = event.target.value / 100;
-      this.processColors[this.colorIndexSelected].color = this.replaceAlpha(
-        this.processColors[this.colorIndexSelected].color,
-        alpha.toFixed(2)
-      );
+    handleChangeColor(color) {
+      this.progressColors[this.colorIndexSelected].color = color;
     },
     handleFlipColor() {
-      this.processColors = this.processColors.reverse().map((process) => ({ ...process, x: 128 - process.x }));
+      this.progressColors = this.progressColors.reverse().map((process) => ({ ...process, x: 128 - process.x }));
     },
     handleDeleteColor() {
-      if (this.processColors.length > 2) this.processColors.pop();
+      if (this.progressColors.length > 2) this.progressColors.splice(this.colorIndexSelected, 1);
+      if (this.colorIndexSelected > this.progressColors.length - 1)
+        this.colorIndexSelected = this.progressColors.length - 1;
     },
-    handleChangeValue(valueChange) {
-      if (valueChange.startsWith("linear-gradient")) {
-        const { degree, colors } = this.parseLinearGradient(valueChange);
+    handleRecalcGradient(gradient) {
+      if (gradient.startsWith("linear-gradient")) {
+        const { degree, colors } = parseLinearGradient(gradient);
         this.degree = degree;
-        this.processColors = colors;
+        this.progressColors = colors;
         this.gradientType = "linear";
-      } else if (valueChange.startsWith("radial-gradient")) {
-        const { position, colors } = this.parseRadialGradient(valueChange);
+      } else if (gradient.startsWith("radial-gradient")) {
+        const { position, colors } = parseRadialGradient(gradient);
         this.radialPointer = position;
-        this.processColors = colors;
+        this.progressColors = colors;
         this.gradientType = "radial";
-      } else if (valueChange.startsWith("conic-gradient")) {
-        const { degree, position, colors } = this.parseConicGradient(valueChange);
+      } else if (gradient.startsWith("conic-gradient")) {
+        const { degree, position, colors } = parseConicGradient(gradient);
         this.conicPointer.degree = degree;
         this.conicPointer.x = position.x;
         this.conicPointer.y = position.y;
-        this.processColors = colors;
+        this.progressColors = colors;
         this.gradientType = "conic";
       }
     },
     handleAddTemplate() {
-      const existing = this.gradientColors.find((gradient) => gradient == this.gradientPreview);
-      if (!existing)
-        this.siteStore.updateSite(this.$route.params.site_id, {
-          settings: {
-            ...this.siteStore.getSettings,
-            gradients: [this.gradientPreview].concat(this.siteStore.getSettings?.gradients || [])
-          }
-        });
-    },
-    parseLinearGradient(gradientString) {
-      const degree = gradientString.match(/-?\d+(\.\d+)?(deg|grad|rad|turn)/)[0];
-
-      const colors = gradientString.match(/rgba?\([\d\s,]+\)\s\d+(\.\d+)?%/g).map((colorString) => {
-        const [color, percent] = colorString.match(/rgba?\([\d\s,]+\)|\d+(\.\d+)?%/g);
-        return {
-          color,
-          x: (parseFloat(percent) / 100) * 128
-        };
-      });
-
-      return { degree: parseFloat(degree), colors };
-    },
-    parseRadialGradient(gradientString) {
-      const [position, shape] = gradientString
-        .match(/(circle|ellipse) at [\d.]+% [\d.]+%/)
-        .map((str) => str.split(" "));
-
-      const colors = gradientString.match(/rgba?\([\d\s,]+\)\s\d+(\.\d+)?%/g).map((colorString) => {
-        const [color, percent] = colorString.match(/rgba?\([\d\s,]+\)|\d+(\.\d+)?%/g);
-        return {
-          color,
-          x: (parseFloat(percent) / 100) * 128
-        };
-      });
-      return {
-        shape: shape[0],
-        position: {
-          x: (parseFloat(position[2]) / 100) * 240,
-          y: (parseFloat(position[3]) / 100) * 120
-        },
-        colors
-      };
-    },
-    parseConicGradient(gradientString) {
-      const [[angle, _, x, y]] = gradientString
-        .match(/-?\d+(\.\d+)?deg at [\d.]+% [\d.]+%/)
-        .map((str) => str && str.split(" "));
-
-      const colors = gradientString.match(/rgba?\([\d\s,]+\)\s\d+(\.\d+)?%/g).map((colorString) => {
-        const [color, percent] = colorString.match(/rgba?\([\d\s,]+\)|\d+(\.\d+)?%/g);
-        return {
-          color,
-          x: (parseFloat(percent) / 100) * 128
-        };
-      });
-
-      return {
-        degree: parseFloat(angle),
-        position: { x: parseFloat(x), y: parseFloat(y) },
-        colors
-      };
+      this.$emit("add");
     }
   },
   watch: {
     gradientPreview() {
-      this.$emit("change", this.gradientPreview);
+      this.handleExport();
     }
   },
   beforeUnmount() {
     document.removeEventListener("mousemove", this.onMouseMoveGradient);
     document.removeEventListener("mouseup", this.onMouseUpGradient);
-    document.removeEventListener("mousemove", this.onMouseMoveProcessColor);
-    document.removeEventListener("mouseup", this.onMouseUpProcessColor);
+    document.removeEventListener("mousemove", this.onMouseMoveProgressColor);
+    document.removeEventListener("mouseup", this.onMouseUpProgressColor);
     document.removeEventListener("mousemove", this.onMouseMoveOpacity);
     document.removeEventListener("mouseup", this.onMouseUpOpacity);
   }
@@ -461,22 +418,22 @@ export default {
           >
             <div
               class="vu-color-gradient-processing-overlay"
-              @mousedown.prevent="onMouseDownProcessColor"
-              ref="processColor"
-              id="processColor"
+              @mousedown.prevent="onMouseDownProgressColor"
+              ref="progressColor"
+              id="progressColor"
             >
               <div
                 class="vu-color-gradient-processing-node"
-                v-for="(processColor, index) in processColors"
+                v-for="(progressColor, index) in progressColorsComputed"
                 :style="{
-                  '--handle-color': processColor.color,
-                  '--handle-translate-x': `${processColor.x}px`,
+                  '--handle-color': progressColor.color,
+                  '--handle-translate-x': `${progressColor.x}px`,
                   '--handle-translate-y': 0
                 }"
                 :data-selected="colorIndexSelected == index"
                 :key="index"
                 @mousedown.prevent="colorIndexSelected = index"
-                id="processPointer"
+                id="progressPointer"
               />
             </div>
           </div>
@@ -500,7 +457,7 @@ export default {
         </div>
       </div>
 
-      <div class="vu-color-gradient-custom" :style="{ '--color': processColors[colorIndexSelected].color }">
+      <div class="vu-color-gradient-custom" :style="{ '--color': progressColorsComputed[colorIndexSelected].color }">
         <div
           ref="opacityColor"
           class="vu-color-gradient-opacity"
@@ -513,14 +470,10 @@ export default {
           <span class="vu-color-gradient-opacity-range"></span>
         </div>
         <div class="vu-color-gradient-opacity-input">
-          <input type="number" min="0" max="100" step="1" v-model="alpha" @input="handleChangeAlpha" />
+          <input type="number" min="0" max="100" step="1" v-model="alpha" />
           <span>%</span>
         </div>
-        <VuColorPickerPick
-          v-model:value="processColors[colorIndexSelected].color"
-          output="rgba"
-          ref="colorPickerCustom"
-        />
+        <VuColorPickerPick v-model:value="colorPickerValue" output="rgba" ref="colorPickerCustom" />
       </div>
 
       <div class="vu-color-gradient-add">
@@ -534,7 +487,7 @@ export default {
             class="vu-color-gradient-add-preview-item"
             v-for="(gradient, index) in gradientColors"
             :key="index"
-            @mousedown.prevent="handleChangeValue(gradient)"
+            @mousedown.prevent="handleRecalcGradient(gradient)"
           >
             <div class="vu-color-gradient-add-preview-item-inner" :style="{ 'background-image': gradient }"></div>
           </div>

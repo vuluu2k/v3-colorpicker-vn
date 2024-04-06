@@ -1,7 +1,7 @@
 <script>
 export default {
   name: "VuProgressInput",
-  emits: ["update:value", "change", "update:selection"],
+  emits: ["update:value", "change"],
   props: {
     value: {
       type: Number,
@@ -22,7 +22,6 @@ export default {
     },
     handleAlphaChange(alpha) {
       this.$emit("update:value", alpha);
-      this.$emit("update:selection", this.selection);
       this.$emit("change", { alpha, selection: this.selection });
     },
     onMouseDown(event) {
@@ -43,17 +42,16 @@ export default {
       document.removeEventListener("mouseup", this.onMouseUp);
     },
     savedSelection() {
-      const sel = window.getSelection();
-      if (sel.rangeCount !== 0) {
-        this.selection = window.getSelection().getRangeAt(0);
-      } else this.selection = null;
+      if (window) {
+        const sel = window.getSelection();
+        window.MY_SEL = sel?.rangeCount !== 0 ? sel?.getRangeAt(0) : null;
+      }
     },
     restoreSelection() {
-      if (this.selection) {
+      if (window && window.MY_SEL) {
         const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(this.selection);
-        this.selection = null;
+        sel?.removeAllRanges();
+        sel?.addRange(window.MY_SEL);
       }
     }
   },

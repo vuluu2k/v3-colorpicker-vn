@@ -79,6 +79,78 @@ const removeAccents = (str: string): string => {
     .replace(/Đ/g, "D");
 };
 
+type gradientOptions = {
+  degree?: number;
+  shape?: string;
+  position?: Position;
+  colors: Color[];
+};
+
+type Color = {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+  x: number;
+};
+
+type Position = {
+  x: number;
+  y: number;
+};
+
+const getColors = (gradientString: string): Color[] => {
+  return (gradientString.match(/rgba?\([\d\s,]+\)\s\d+(\.\d+)?%/g) || []).map((colorString) => {
+    const [color, percent]: any = colorString.match(/rgba?\([\d\s,]+\)|\d+(\.\d+)?%/g);
+    const [r, g, b, a] = rgbaToArray(color);
+    return {
+      r,
+      g,
+      b,
+      a,
+      x: (parseFloat(percent) / 100) * 128
+    };
+  });
+};
+
+const parseLinearGradient = (gradientString: string): gradientOptions => {
+  const degree = gradientString.match(/-?\d+(\.\d+)?(deg|grad|rad|turn)/)?.[0] as string;
+
+  const colors: Color[] = getColors(gradientString);
+
+  return { degree: parseFloat(degree), colors };
+};
+
+const parseRadialGradient = (gradientString: string): gradientOptions => {
+  const [position, shape]: any = (gradientString.match(/(circle|ellipse) at [\d.]+% [\d.]+%/) || []).map((str) =>
+    str.split(" ")
+  );
+
+  const colors = getColors(gradientString);
+  return {
+    shape: shape[0],
+    position: {
+      x: (parseFloat(position[2]) / 100) * 240,
+      y: (parseFloat(position[3]) / 100) * 120
+    },
+    colors
+  };
+};
+
+const parseConicGradient = (gradientString: string): gradientOptions => {
+  const [[angle, _, x, y]]: any = gradientString
+    .match(/-?\d+(\.\d+)?deg at [\d.]+% [\d.]+%/)
+    ?.map((str) => str && str.split(" "));
+
+  const colors = getColors(gradientString);
+
+  return {
+    degree: parseFloat(angle),
+    position: { x: parseFloat(x), y: parseFloat(y) },
+    colors
+  };
+};
+
 export {
   hexToRgb,
   hsbToRgb,
@@ -87,5 +159,8 @@ export {
   removeAccents,
   rgbaToArray,
   convertPercentToHex,
-  changeOpacityColorHex
+  changeOpacityColorHex,
+  parseLinearGradient,
+  parseRadialGradient,
+  parseConicGradient
 };

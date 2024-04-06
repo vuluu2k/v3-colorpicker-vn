@@ -1,12 +1,11 @@
 <script>
+import colorMixin from "../../mixins/colorMixin";
+
 export default {
   name: "VuColorCustom",
   emits: ["change", "add", "update:value"],
+  mixins: [colorMixin],
   props: {
-    value: {
-      type: String,
-      default: "#000000"
-    },
     themes: {
       type: Array,
       default: [
@@ -76,8 +75,9 @@ export default {
       this.$emit("add");
     },
     onSelectColor(color) {
-      this.$emit("change", color);
-      this.$emit("update:value", color);
+      this.hex = color;
+      this.handleColorChange("hex");
+      this.handleExport();
     }
   }
 };

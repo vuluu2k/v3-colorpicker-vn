@@ -1,20 +1,6 @@
 import { rgbToHsb, hsbToRgb, hexToRgb, rgbToHex, rgbaToArray, removeAccents } from "../utils";
 import { ComponentOptionsMixin } from "vue";
-
-type dataType = {
-  hex: string;
-  hsb: {
-    hue: number;
-    saturation: number;
-    brightness: number;
-  };
-  rgb: {
-    red: number;
-    green: number;
-    blue: number;
-  };
-  alpha: number;
-};
+import { dataType } from "../mixins/color_mixin.d";
 
 const colorMixin: ComponentOptionsMixin = {
   emits: ["change", "update:value", "blur"],
@@ -22,6 +8,13 @@ const colorMixin: ComponentOptionsMixin = {
     value: {
       type: String,
       default: "#000000"
+    },
+    output: {
+      type: String,
+      default: "hex",
+      validator(value: string) {
+        return ["hex", "rgb", "hsb", "rgba"].indexOf(value) !== -1;
+      }
     }
   },
   /**
@@ -188,21 +181,53 @@ const colorMixin: ComponentOptionsMixin = {
     /**
      * A function that saves the current selection in the window.
      */
-    savedSelection() {
-      const sel = window.getSelection();
-      if (sel?.rangeCount !== 0) {
-        this.selection = window.getSelection()?.getRangeAt(0);
+    savedSelection(): void {
+      if (window) {
+        const sel = window.getSelection();
+        window.MY_SEL = sel?.rangeCount !== 0 ? sel?.getRangeAt(0) : null;
       }
     },
     /**
      * Restores the previous selection if available.
      */
-    restoreSelection() {
-      if (this.selection) {
+    restoreSelection(): void {
+      if (window && window.MY_SEL) {
         const sel = window.getSelection();
         sel?.removeAllRanges();
-        sel?.addRange(this.selection);
+        sel?.addRange(window.MY_SEL);
       }
+    },
+    /**
+     * A function to handle the export of color values.
+     *
+     * @return {void}
+     */
+    handleExport(): void {
+      this.handleExportValue();
+      this.handleExportChange();
+    },
+    /**
+     * A description of the entire function.
+     *
+     * @return {void}
+     */
+    handleExportChange(): void {
+      this.$emit("change", {
+        hex: this.hex,
+        rgb: this.rgb,
+        hsb: this.hsb,
+        alpha: this.alpha
+      });
+    },
+    /**
+     * Method to handle exporting value.
+     *
+     * @return {void}
+     */
+    handleExportValue(): void {
+      const value = this[this.output === "rgba" ? "rgb" : this.output];
+      if (this.output === "rgba") value.alpha = this.alpha;
+      this.$emit("update:value", value);
     }
   }
 };

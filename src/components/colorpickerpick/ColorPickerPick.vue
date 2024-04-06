@@ -23,10 +23,6 @@ export default {
       type: String,
       default: "bottomRight"
     },
-    output: {
-      type: String,
-      default: "hex"
-    },
     customText: {
       type: String,
       default: "Color Custom"
@@ -61,8 +57,7 @@ export default {
         left: 0
       },
       startY: 0,
-      startX: 0,
-      selection: null
+      startX: 0
     };
   },
   computed: {
@@ -105,8 +100,7 @@ export default {
       document.removeEventListener("mousemove", this.onMouseMoveLocation);
       document.removeEventListener("mouseup", this.onMouseUpLocation);
     },
-    handleAlphaChange({ alpha, selection }) {
-      this.selection = selection;
+    handleAlphaChange({ alpha }) {
       const alphaHex = Math.round((alpha / 100) * 255)
         .toString(16)
         .padStart(2, "0");
@@ -119,31 +113,12 @@ export default {
       this.handleExportColor();
     },
     getColorFromComponent(event) {
-      switch (this.view) {
-        case "color_picker":
-          const { hex, rgb, hsb, alpha, selection } = event;
-          this.hex = hex;
-          this.rgb = rgb;
-          this.hsb = hsb;
-          this.alpha = alpha;
-          this.selection = selection;
-          this.handleExportColor();
-          break;
-        case "color_custom":
-          this.hex = event;
-          this.handleColorChange("hex");
-          this.handleExportColor();
-      }
-    },
-    handleExportColor() {
-      this.$emit("update:value", this[this.output]);
-      this.$emit("change", {
-        hex: this.hex,
-        rgb: this.rgb,
-        hsb: this.hsb,
-        alpha: this.alpha,
-        selection: this.selection
-      });
+      const { hex, rgb, hsb, alpha } = event;
+      this.hex = hex;
+      this.rgb = rgb;
+      this.hsb = hsb;
+      this.alpha = alpha;
+      this.handleExport();
     }
   },
   beforeUnmount() {
@@ -175,7 +150,7 @@ export default {
           @mousedown="savedSelection"
           @blur="restoreSelection"
         />
-        <VuProgressInput :value="alpha" :selection="selection" @change="handleAlphaChange" />
+        <VuProgressInput :value="alpha" @change="handleAlphaChange" />
       </div>
     </div>
 

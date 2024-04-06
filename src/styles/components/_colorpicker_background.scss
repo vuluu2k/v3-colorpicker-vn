@@ -1,0 +1,118 @@
+.vu-colorpicker-bg {
+  input {
+    all: unset;
+  }
+  .picker-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .picker {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    position: relative;
+    border: 1px solid var(--divider, #e5e5e5);
+  }
+  .picker::before {
+    width: 100%;
+    height: 100%;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background-image: repeating-conic-gradient(from 0deg, #fff 0 25%, #ededed 0 50%);
+    background-size: 10px 10px;
+  }
+  .picker-more {
+    display: flex;
+    border: 1px solid var(--more-border-color, rgba(255, 255, 255, 0));
+    width: fit-content;
+    padding: 0 3px;
+    height: 32px;
+    border-radius: 4px;
+  }
+  .picker-more:hover,
+  .picker-more:hover .picker-more-input-progress {
+    --more-border-color: var(--divider, #e0e0e0);
+  }
+  .picker-more .picker-more-input-progress {
+    border-left: 1px solid var(--more-border-color, rgba(255, 255, 255, 0));
+  }
+  .picker-more:focus-within,
+  .picker-more:focus-within .picker-more-input-progress {
+    --more-border-color: var(--primary, #2196f3);
+  }
+  .picker-more-info {
+    display: flex;
+    margin-left: 10px;
+  }
+  .picker-more-text {
+    padding-right: 5px;
+    width: 60px;
+    height: 100%;
+  }
+}
+
+.vu-colorpicker-bg-modal {
+  border-radius: 8px;
+  z-index: 1;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  z-index: 1000;
+  animation: showIn 0.15s ease-in-out;
+
+  .vu-colorpicker-bg-header {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--divider, #e0e0e0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+  }
+  .vu-colorpicker-bg-close {
+    cursor: pointer;
+  }
+  .vu-colorpicker-bg-title {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+  }
+  .vu-colorpicker-bg-back {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .vu-colorpicker-bg-content {
+    padding: 8px;
+  }
+  .vu-colorpicker-bg-select {
+    display: flex;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 6, 36, 0.05);
+    height: 54px;
+  }
+  .vu-colorpicker-bg-select-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 2px solid var(--divider, #e0e0e0);
+  }
+  .vu-colorpicker-bg-select-item[data-selected="true"] {
+    border-bottom: 2px solid var(--primary, #1677ff);
+  }
+  .vu-colorpicker-bg-solid {
+    background-color: #000;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+  }
+  .vu-colorpicker-bg-gradient {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-image: linear-gradient(#fff, #000);
+  }
+}

@@ -29,8 +29,7 @@ export default {
       clientX: 0,
       clientY: 0,
       clientXGradient: 0,
-      clientXAlpha: 0,
-      selection: null
+      clientXAlpha: 0
     };
   },
   mounted() {
@@ -98,17 +97,7 @@ export default {
       this.handleColorChange(type);
       this.handleRecalcPickerPosition();
 
-      this.$emit("change", {
-        hex: this.hex,
-        rgb: this.rgb,
-        hsb: this.hsb,
-        alpha: this.alpha,
-        selection: this.selection
-      });
-
-      const value = this[this.output];
-      if (this.output == "rgba") value.push(this.alpha);
-      this.$emit("update:value", value);
+      this.handleExport();
     },
     // Mouse move event
     onMouseDown(event) {
