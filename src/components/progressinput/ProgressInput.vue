@@ -6,6 +6,10 @@ export default {
     value: {
       type: Number,
       default: 100
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -17,6 +21,7 @@ export default {
   },
   methods: {
     handleChange(event) {
+      if (this.disabled) return;
       const value = Number(event.target.value);
       this.handleAlphaChange(value);
     },
@@ -25,6 +30,7 @@ export default {
       this.$emit("change", { alpha, selection: this.selection });
     },
     onMouseDown(event) {
+      if (this.disabled) return;
       this.startX = event.clientX;
       this.oldValue = this.value;
       document.addEventListener("mousemove", this.onMouseMove);
@@ -69,6 +75,7 @@ export default {
       min="0"
       max="100"
       :value="value"
+      :disabled="disabled"
       @change="handleChange"
       @keypress.stop
       @keydown.stop

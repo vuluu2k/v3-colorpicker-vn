@@ -193,7 +193,7 @@ export default {
           @keypress.stop
           @mouseup.prevent
         />
-        <VuProgressInput v-model:value="alpha" :disabled="selected === 'solid'" @change="handleAlphaChange" />
+        <VuProgressInput v-model:value="alpha" :disabled="selected === 'gradient'" @change="handleAlphaChange" />
       </div>
     </div>
 

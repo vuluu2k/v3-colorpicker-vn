@@ -42,6 +42,12 @@ const colorBackground = ref<string>("linear-gradient(90deg, rgba(145, 133, 122, 
       </div>
       <VuColorPickerPick v-model:value="colorValue" :more="true" />
       <div class="title">ColorPickerBg</div>
+      <VuColorPickerBg v-model:value="colorBackground" />
+
+      <div class="title">
+        ColorPickerBg <br />
+        (option has more)
+      </div>
       <VuColorPickerBg v-model:value="colorBackground" :more="true" />
     </div>
   </div>
