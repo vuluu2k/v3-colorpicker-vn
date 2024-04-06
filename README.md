@@ -86,7 +86,7 @@ yarn add v3-colorpicker-vn
 
 ## Screenshot
 
-![image](./src/assets/screenshot.png)
+![image](https://content.pancake.vn/web-media/ee/bf/2b/e6/1d0e6968f1a847be0f28d6b998e5fdad34c2015d99032c4837572f6d.png)
 
 ## Contact
 
