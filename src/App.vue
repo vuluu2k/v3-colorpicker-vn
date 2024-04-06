@@ -57,4 +57,7 @@ const colorBackground = ref<string>("linear-gradient(90deg, rgba(145, 133, 122, 
     <div :style="{ background: colorValue }"></div>
     <div :style="{ background: colorBackground }"></div>
   </div>
+
+  <div class="test-title">Code in view</div>
+  <img src="./assets/demo.png" alt="demo" width="1006px" />
 </template>

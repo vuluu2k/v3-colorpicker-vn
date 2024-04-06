@@ -36,10 +36,12 @@
     border-radius: 4px;
     padding: 0 6px;
     color: #2b5672;
+    max-width: 100px;
   }
 
   input[type="number"] {
     -moz-appearance: textfield;
+    max-width: 50px;
   }
 
   input:focus {

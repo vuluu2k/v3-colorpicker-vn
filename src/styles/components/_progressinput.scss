@@ -9,6 +9,7 @@
 
     &[type="number"] {
       -moz-appearance: textfield;
+      max-width: 24px;
     }
 
     &::-webkit-outer-spin-button,
