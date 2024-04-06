@@ -70,7 +70,7 @@
     "vue3",
     "color",
     "picker",
-    "colorpicker-vue3",
+    "v3-colorpicker-vn",
     "component",
     "components",
     "design",
@@ -86,10 +86,10 @@
   "author": "vuluu2k <vuluu040320@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/vuluu2k/colorpicker-vue3/issues"
+    "url": "https://github.com/vuluu2k/v3-colorpicker-vn/issues"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "homepage": "https://github.com/vuluu2k/colorpicker-vue3#readme"
+  "homepage": "https://github.com/vuluu2k/v3-colorpicker-vn#readme"
 }

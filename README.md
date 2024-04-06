@@ -18,21 +18,21 @@ yarn add v3-colorpicker-vn
 
 ## How to use
 
-```vue
+```html
 <script setup lang="ts">
-import { ref } from "vue";
-import {
-  VuColorPicker,
-  VuColorCustom,
-  VuProgressInput,
-  VuColorPickerPick,
-  VuColorBg,
-  VuColorPickerBg
-} from "./components/export";
+  import { ref } from "vue";
+  import {
+    VuColorPicker,
+    VuColorCustom,
+    VuProgressInput,
+    VuColorPickerPick,
+    VuColorBg,
+    VuColorPickerBg
+  } from "./components/export";
 
-const progressValue = ref<number>(100);
-const colorValue = ref<string>("#000000");
-const colorBackground = ref<string>("linear-gradient(90deg, rgba(145, 133, 122, 1) 0%, rgba(242, 222, 204, 1) 100%)");
+  const progressValue = ref<number>(100);
+  const colorValue = ref<string>("#000000");
+  const colorBackground = ref<string>("linear-gradient(90deg, rgba(145, 133, 122, 1) 0%, rgba(242, 222, 204, 1) 100%)");
 </script>
 
 <template>
@@ -84,11 +84,9 @@ const colorBackground = ref<string>("linear-gradient(90deg, rgba(145, 133, 122, 
 </template>
 ```
 
-## Some images in project
+## Screenshot
 
-![image](https://github.com/vuluu2k/color-picker-vue3/assets/73820126/5854465a-aa4f-4a21-815a-ccaf9b2f1f6b)
-
-![image](https://github.com/vuluu2k/color-picker-vue3/assets/73820126/619e72a7-f62b-47b2-a0d1-d7f1fb7823ae)
+![image](./src/assets/screenshot.png)
 
 ## Contact
 
