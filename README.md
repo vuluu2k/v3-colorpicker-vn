@@ -28,7 +28,7 @@ yarn add v3-colorpicker-vn
     VuColorPickerPick,
     VuColorBg,
     VuColorPickerBg
-  } from "./components/export";
+  } from "v3-colorpicker-vn";
 
   const progressValue = ref<number>(100);
   const colorValue = ref<string>("#000000");
@@ -82,6 +82,14 @@ yarn add v3-colorpicker-vn
   <div class="test-title">Code in view</div>
   <img src="./assets/demo.png" alt="demo" width="1006px" />
 </template>
+```
+
+you can install it same as plugin in main.ts
+
+```ts
+import ColorPicker from "v3-colorpicker-vn";
+
+app.use(ColorPicker);
 ```
 
 ## Screenshot
