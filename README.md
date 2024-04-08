@@ -92,6 +92,14 @@ import ColorPicker from "v3-colorpicker-vn";
 app.use(ColorPicker);
 ```
 
+or install some components of it
+
+```ts
+import { ColorPicker } from "v3-colorpicker-vn";
+
+app.use(ColorPicker); // it's VuColorPicker
+```
+
 ## Screenshot
 
 ![image](https://content.pancake.vn/web-media/ee/bf/2b/e6/1d0e6968f1a847be0f28d6b998e5fdad34c2015d99032c4837572f6d.png)
