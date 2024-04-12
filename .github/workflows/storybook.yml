@@ -1,7 +1,7 @@
 name: Build and deploy storybook docs
 on:
   push:
-    paths: ["src/stories/**", "src/components/**", "src/utils/**", "src/styles/**"] # Trigger the action only when files change in the folders defined here
+    paths: ["src/stories/**", "src/components/**", "src/utils/**", "src/styles/**", "./storybook.yml"] # Trigger the action only when files change in the folders defined here
 jobs:
   build-and-deploy:
     concurrency: ci-${{ github.ref }}
