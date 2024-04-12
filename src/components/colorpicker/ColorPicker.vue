@@ -1,6 +1,7 @@
 <script>
 import { hexToRgb, rgbToHex, hsbToRgb, rgbToHsb, removeAccents, rgbaToArray } from "../../utils";
 import colorMixin from "../../mixins/colorMixin";
+import "../../styles/components/_colorpicker.scss";
 export default {
   emits: ["change", "blur", "update:value", "ok", "cancel"],
   mixins: [colorMixin],
