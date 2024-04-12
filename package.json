@@ -31,7 +31,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "storybook:publish": "npm run build-storybook && touch ./storybook-static/.nojekyll && gh-pages -d ./storybook-static -t true",
+    "storybook:publish": "npm run build-storybook && touch ./storybook-static/.nojekyll",
     "build:vue": "rollup -c && rollup -c --environment MINIFY",
     "build:vue:watch": "rollup -c --watch",
     "build:style": "sass --no-charset ./src/styles/index.scss | node ./build/print-banner.js > dist/v3-colorpicker-vn.css && cleancss -o dist/v3-colorpicker-vn.min.css dist/v3-colorpicker-vn.css",
