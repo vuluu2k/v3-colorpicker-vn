@@ -18,6 +18,14 @@ yarn add v3-colorpicker-vn
 
 ## How to use
 
+### in file main.ts
+
+```js
+import "v3-colorpicker-vn/dist/v3-colorpicker-vn.css";
+```
+
+### in file App.vue
+
 ```html
 <script setup lang="ts">
   import { ref } from "vue";
