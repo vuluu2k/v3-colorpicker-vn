@@ -1,6 +1,6 @@
 {
   "name": "v3-colorpicker-vn",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "type": "module",
   "files": [
     "dist",
@@ -97,5 +97,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "homepage": "https://github.com/vuluu2k/v3-colorpicker-vn#readme"
+  "homepage": "https://vuluu2k.github.io/v3-colorpicker-vn"
 }
