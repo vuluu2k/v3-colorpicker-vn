@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import { VuColorPicker } from "../components/colorpicker";
+import "../styles/components/_colorpicker.scss";
 
 const meta = {
   title: "Example/VuColorPicker",

@@ -1,6 +1,5 @@
 <script>
 import colorMixin from "../../mixins/colorMixin";
-import "../../styles/components/_colorcustom.scss";
 
 export default {
   name: "VuColorCustom",

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import { VuColorCustom } from "../components/colorcustom";
+import "../styles/components/_colorcustom.scss";
 
 const meta = {
   title: "Example/VuColorCustom",
