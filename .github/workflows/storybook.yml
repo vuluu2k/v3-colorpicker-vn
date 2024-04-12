@@ -21,7 +21,8 @@ jobs:
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: docs # The branch the action should deploy to.
-          FOLDER: storybook-static # The folder that the build-storybook script generates files.
-          CLEAN: true # Automatically remove deleted files from the deploy branch
+          git-config-name: vuluu2k
+          git-config-email: vuluu040320@gmail.com
+          branch: docs # The branch the action should deploy to.
+          folder: storybook-static # The folder that the build-storybook script generates files.
+          clean: true # Automatically remove deleted files from the deploy branch
