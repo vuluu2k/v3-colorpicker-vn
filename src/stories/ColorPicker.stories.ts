@@ -28,6 +28,6 @@ export const Demo: Story = {
     output: "hex",
     cancelText: "Cancel",
     okText: "Apply",
-    class: "Test"
+    class: ""
   }
 };

@@ -60,6 +60,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "chromatic": "^11.3.0",
     "clean-css-cli": "^5.6.3",
+    "gh-pages": "^6.1.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-vue": "^6.0.0",
